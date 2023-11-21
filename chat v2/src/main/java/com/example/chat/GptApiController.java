@@ -18,3 +18,4 @@ public class GptApiController {
         return ResponseEntity.ok(gptResponse);
     }
 }
+

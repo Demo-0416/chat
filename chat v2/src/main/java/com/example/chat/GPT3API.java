@@ -15,7 +15,7 @@ import java.net.InetSocketAddress;
 
 public class GPT3API {
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
 
     public static String getResponse(String prompt) {
         try {
