@@ -12,7 +12,7 @@ public interface UserMapper {
   @Select("select * from user")
   List<com.example.chat.User> findAll();
 
-  @Update("INSERT INTO `user` (`userId`, `userName`, `userPhone`, `userPassword`) VALUES (#{userId}, #{userName}, #{userPhone}, #{userPassword});")
+  @Update("INSERT INTO `user` (`username`, `useremail`, `userpassword`) VALUES (#{userName}, #{userEmail}, #{userPassword});")
   @Transactional
   void save(com.example.chat.User user);
 
@@ -23,8 +23,8 @@ public interface UserMapper {
   @Delete("DELETE from user where userId = #{userId}")
   void deleteById(Long id);
 
-  @Select("SELECT * from user where userPhone = #{userPhone}")
-  User findByPhone(String phone);
+  @Select("SELECT * from user where useremail = #{email}")
+  User findByEmail(String email);
 
   @Select("select * from login where number=#{number}")
   User findNumber(@Param("number") String number);

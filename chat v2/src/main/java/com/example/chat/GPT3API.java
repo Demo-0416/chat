@@ -1,6 +1,7 @@
 package com.example.chat;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -59,7 +60,7 @@ public class GPT3API {
     }
 
 
-    private static String readFromJson(String jsonResponse) {
+    private static String readFromJson(String jsonResponse) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonResponse);
         JSONArray choices = jsonObject.getJSONArray("choices");
         JSONObject firstChoice = choices.getJSONObject(0);
