@@ -3,6 +3,7 @@ package com.example.chat;
 import com.example.chat.User;
 import java.util.List;
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,5 +25,13 @@ public interface UserMapper {
 
   @Select("SELECT * from user where userPhone = #{userPhone}")
   User findByPhone(String phone);
+
+  @Select("select * from login where number=#{number}")
+  User findNumber(@Param("number") String number);
+
+  @Select("select * from login where number = #{number} and password = #{password}")
+  User findPassword(@Param("number") String number,@Param("password") String password);
+
+
 
 }

@@ -49,4 +49,29 @@ public class UserController {
   public User findUser(@PathVariable("userPhone") String phone) {
     return userMapper.findByPhone(phone);
   }
+
+  @GetMapping("/test")
+  public String test(){
+    return "1111111";
+  }
+  @PostMapping ("/login")
+  public Result check(@RequestBody User user){
+    User user1=new User();
+    System.out.println(user1.getUserName());
+    if(user.getUserPhone() == null){
+      return Result.failed("请输入手机号码");
+    }else {
+      user1=userMapper.findNumber(user.getUserPhone());
+      if(user1 == null){
+        return Result.failed("用户不存在");
+      }else {
+        user1=userMapper.findPassword(user.getUserPhone(), user.getUserPassword());
+        if(user1 == null){
+          return Result.failed("密码错误");
+        }else {
+          return Result.success("登录成功");
+        }
+      }
+    }
+  }
 }
