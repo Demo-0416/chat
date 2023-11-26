@@ -33,5 +33,20 @@ public interface UserMapper {
   User findPassword(@Param("number") String number,@Param("password") String password);
 
 
+  @Select("SELECT * from logged where email = #{email}")
+  String findLoggedUser(String email);
 
+  @Select("SELECT email from register where email = #{email}")
+  String findRegisterByEmail(String email);
+
+  @Select("update register set code = #{registerCode} where email = #{email}")
+  @Transactional
+  void updateRegister(String email, String registerCode);
+
+  @Select("INSERT INTO `register` (`email`, `code`) VALUES (#{email}, #{registerCode});")
+  @Transactional
+  void addRegister(String email, String registerCode);
+
+  @Select("SELECT code from register where email = #{email}")
+  String findRegisterCodeByEmail(String email);
 }
