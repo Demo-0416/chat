@@ -3,7 +3,10 @@ package com.example.chat;
 import com.example.chat.User;
 import com.example.chat.UserMapper;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +24,7 @@ public class UserController {
 
   @Resource
   UserMapper userMapper;
+  String getRegisterCode="111111";
 
   @GetMapping
   public List<com.example.chat.User> getUser() {
@@ -44,28 +48,52 @@ public class UserController {
     userMapper.deleteById(id);
     return "成功";
   }
+  @GetMapping("/signup/{email}")
+  public String UserSignUp(HttpServletRequest request) {
+    GetCodeNumber number = new GetCodeNumber();
+    String email = request.getParameter("email");
 
-  @GetMapping("/{userPhone}")
-  public User findUser(@PathVariable("userPhone") String phone) {
-    return userMapper.findByPhone(phone);
+    HttpSession session = request.getSession();
+    String sessionCode = (String) session.getAttribute("code");
+    User user = userMapper.findByEmail(email);
+
+    if(user == null) {
+      getRegisterCode = number.GetNumber(email);
+      return "验证码已发送";
+    } else {
+      return "邮箱已注册";
+    }
   }
 
-  @GetMapping("/test")
-  public String test(){
-    return "1111111";
+  @PutMapping("/register")
+  public String UserRegister(HttpServletRequest request) {
+    String code = request.getParameter("code");
+    String email = request.getParameter("email");
+    String password = request.getParameter("password");
+    User user = new User();
+    user.setUserEmail(email);
+    user.setUserPassword(password);
+    if(getRegisterCode.equals(code)) {
+      user.setUserName(user.getUserEmail());
+      userMapper.save(user);
+      return "注册成功";
+    } else {
+      return "验证码错误";
+    }
   }
+
   @PostMapping ("/login")
   public Result check(@RequestBody User user){
     User user1=new User();
     System.out.println(user1.getUserName());
-    if(user.getUserPhone() == null){
+    if(user.getUserEmail() == null){
       return Result.failed("请输入手机号码");
     }else {
-      user1=userMapper.findNumber(user.getUserPhone());
+      user1=userMapper.findNumber(user.getUserEmail());
       if(user1 == null){
         return Result.failed("用户不存在");
       }else {
-        user1=userMapper.findPassword(user.getUserPhone(), user.getUserPassword());
+        user1=userMapper.findPassword(user.getUserEmail(), user.getUserPassword());
         if(user1 == null){
           return Result.failed("密码错误");
         }else {
