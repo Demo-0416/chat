@@ -18,6 +18,10 @@ public interface UserMapper {
   @Transactional
   void save(com.example.chat.User user);
 
+  @Update("update user set userpassword = #{password} where useremail = #{email}")
+  @Transactional
+  void changePassword(String email, String password);
+
   @Delete("DELETE from user where useremail = #{email}")
   void deleteById(String email);
 

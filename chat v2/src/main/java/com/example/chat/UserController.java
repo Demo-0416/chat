@@ -117,16 +117,35 @@ public class UserController {
   @GetMapping ("/register")
   public String UserRegister(HttpServletRequest request) {
     String email = request.getParameter("email");
-    System.out.println(email);
     String password = request.getParameter("password");
     User user = new User();
     user.setUserEmail(email);
     user.setUserPassword(password);
     user.setUserName(user.getUserEmail());
-    System.out.println(user.getUserEmail());
     userMapper.save(user);
     return "添加用户成功";
 
+  }
+
+  @GetMapping("/changepassword")
+  public String userChangePassword(HttpServletRequest request) {
+    String email = request.getParameter("email");
+    String oldpassword = request.getParameter("oldpassword");
+    String newpassword = request.getParameter("newpassword");
+    if (oldpassword.equals(userMapper.findByEmail(email).getUserPassword())) {
+      userMapper.changePassword(email, newpassword);
+      return "修改成功";
+    } else {
+      return "密码错误";
+    }
+  }
+
+  @GetMapping("/resetpassword")
+  public String UserResetPassword(HttpServletRequest request) {
+    String email = request.getParameter("email");
+    String password = request.getParameter("password");
+    userMapper.changePassword(email, password);
+    return "修改密码成功";
   }
 
 
