@@ -13,7 +13,7 @@ import javax.mail.internet.MimeMessage;
 
 public class GetCodeNumber {
   public static String GetNumber(String email) {
-    String code = send("yzj@yangzhijiemysql.top",email,"ewomail123","smtp.yangzhijiemysql.top");
+    String code = send("contract@yangzhijiemysql.top",email,"wj20031012","smtp.yangzhijiemysql.top");
     return code;
   }
 

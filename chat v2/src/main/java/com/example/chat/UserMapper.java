@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface UserMapper {
+
+  //用户表
   @Select("select * from user")
   List<com.example.chat.User> findAll();
 
@@ -16,12 +18,8 @@ public interface UserMapper {
   @Transactional
   void save(com.example.chat.User user);
 
-  @Update("update user set userName = #{userName}, userPhone = #{userPhone}, userpassword = #{userPassword} where userId = #{userId}")
-  @Transactional
-  void updateById(com.example.chat.User user);
-
-  @Delete("DELETE from user where userId = #{userId}")
-  void deleteById(Long id);
+  @Delete("DELETE from user where useremail = #{email}")
+  void deleteById(String email);
 
   @Select("SELECT * from user where useremail = #{email}")
   User findByEmail(String email);
@@ -32,6 +30,33 @@ public interface UserMapper {
   @Select("select * from login where number = #{number} and password = #{password}")
   User findPassword(@Param("number") String number,@Param("password") String password);
 
+  //验证码表
+  @Select("SELECT email from register where email = #{email}")
+  String findRegisterByEmail(String email);
 
+  @Update("update register set code = #{registerCode} where email = #{email}")
+  @Transactional
+  void updateRegister(String email, String registerCode);
 
+  @Update("INSERT INTO `register` (`email`, `code`) VALUES (#{email}, #{registerCode});")
+  @Transactional
+  void addRegister(String email, String registerCode);
+
+  @Select("SELECT code from register where email = #{email}")
+  String findRegisterCodeByEmail(String email);
+
+  //登录状态表
+  @Update("INSERT INTO `logged` (`email`, `cookie`) VALUES (#{email}, #{cookie});")
+  @Transactional
+  void addLogIn(String email, String cookie);
+
+  @Select("SELECT email from logged where cookie = #{cookie}")
+  String findLogInUser(String cookie);
+
+  @Delete("DELETE from logged where cookie = #{cookie}")
+  void deleteLoggedByEmail(String cookie);
+
+  @Update("update logged set email = #{email} where cookie = #{cookie};")
+  @Transactional
+  void updateLogInUser(String email, String cookie);
 }
