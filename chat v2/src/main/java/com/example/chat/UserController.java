@@ -1,16 +1,22 @@
 package com.example.chat;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+import java.util.Objects;
 import javax.mail.Session;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -187,5 +193,70 @@ public class UserController {
     userMapper.deleteLoggedByEmail(cookie);
     return "退出成功";
   }
+
+  //对话功能
+  @PostMapping("/savedialogue")
+  public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
+    String cookie = request.getHeader("session-id");
+    LocalDateTime time = LocalDateTime.now();
+    //System.out.println(dialogue);
+    if(userMapper.findLogInUser(cookie) == null){}
+    else {
+      String email = userMapper.findLogInUser(cookie);
+
+        userMapper.addDialogue(dialogue, email, time);
+
+    }
+
+  }
+
+  @PostMapping("/showdialogues")
+  public List<String> showDialogues(HttpServletRequest request){
+    String cookie = request.getHeader("session-id");
+    if(userMapper.findLogInUser(cookie) == null){
+      return Collections.emptyList();
+    }
+    else {
+      String email = userMapper.findLogInUser(cookie);
+      List<String> list= userMapper.getDialogueTime(email);
+      for (int i = 0; i < list.size(); i++) {
+        for (int j = i + 1; j < list.size(); j++) {
+          if (list.get(i).equals(list.get(j))) {
+            list.remove(j);
+            j--;
+          }
+        }
+      }
+      System.out.println(list);
+      return list;
+    }
+  }
+
+  @GetMapping("/showdialogue")
+  public String showDialogue(HttpServletRequest request){
+    String cookie = request.getParameter("session-id");
+    String time = request.getParameter("time");
+    if(userMapper.findLogInUser(cookie) == null){
+      return "没有找到";
+    } else {
+      String email = userMapper.findLogInUser(cookie);
+      String list = userMapper.findDialogue(email, time);
+      System.out.println(list);
+      return list;
+    }
+  }
+
+  @GetMapping("/deletedialogue")
+  public void deleteDialogue(HttpServletRequest request){
+    String cookie = request.getParameter("session-id");
+    String time = request.getParameter("time");
+    System.out.println(cookie+time);
+    if (userMapper.findLogInUser(cookie) == null){
+    } else {
+      String email = userMapper.findLogInUser(cookie);
+      userMapper.deleteDialogue(email, time);
+    }
+  }
+
 
 }

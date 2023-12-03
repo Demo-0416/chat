@@ -1,7 +1,9 @@
 package com.example.chat;
 
 import com.example.chat.User;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -63,4 +65,18 @@ public interface UserMapper {
   @Update("update logged set email = #{email} where cookie = #{cookie};")
   @Transactional
   void updateLogInUser(String email, String cookie);
+
+  //对话内容表
+  @Update("INSERT INTO `dialogue` (`dialogue`, `email`, `time`) VALUES (#{dialogue}, #{email}, #{time});")
+  @Transactional
+  void addDialogue(String dialogue, String email, LocalDateTime time);
+
+  @Select("SELECT `time` from dialogue where email = #{email}")
+  List<String> getDialogueTime(String email);
+
+  @Select("SELECT `dialogue` from dialogue where email = #{email} and `time` = #{time}")
+  String findDialogue(String email, String time);
+
+  @Delete("DELETE from dialogue where email = #{email} and `time` = #{time}")
+  void deleteDialogue(String email, String time);
 }
