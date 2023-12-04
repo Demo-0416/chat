@@ -21,12 +21,17 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>javax.mail-api</artifactId>
-            <version>1.6.2</version> <!-- 使用最新的版本 -->
+            <version>1.6.2</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version> <!-- 使用最新的版本 -->
+            <version>1.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.8.4</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

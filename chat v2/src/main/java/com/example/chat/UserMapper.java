@@ -79,4 +79,11 @@ public interface UserMapper {
 
   @Delete("DELETE from dialogue where email = #{email} and `time` = #{time}")
   void deleteDialogue(String email, String time);
+
+  //法律表
+  @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawExplain like #{str}")
+  List<Content> findLaws(String str);
+
+  @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawContent = #{str}")
+  Content findLawByContent(String str);
 }

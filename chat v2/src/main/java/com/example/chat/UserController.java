@@ -1,29 +1,23 @@
 package com.example.chat;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import static com.example.chat.SemanticSimilarity.semanticSimilarityDirectInDatabase;
+
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-
-import java.util.Objects;
-import javax.mail.Session;
+import java.util.concurrent.ExecutionException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +32,9 @@ public class UserController {
   @Resource
   UserMapper userMapper;
   String getRegisterCode;
+
+  public UserController() throws ExecutionException, InterruptedException {
+  }
 
 
   @GetMapping
@@ -257,6 +254,34 @@ public class UserController {
       userMapper.deleteDialogue(email, time);
     }
   }
+
+  @GetMapping("/findlaws")
+  public List<Content> findLaws(HttpServletRequest request){
+    String cookie = request.getParameter("session-id");
+    String keyWord = request.getParameter("keyword");
+    List<Content> result = new ArrayList<>();
+    if (userMapper.findLogInUser(cookie) == null){
+      return Collections.emptyList();
+    } else {
+      result.addAll(userMapper.findLaws("%"+keyWord+"%"));
+      return result;
+    }
+  }
+
+
+  @PostMapping("/longsearch")
+  public List<Content> adsadf(@RequestBody String userInput)
+      throws ExecutionException, InterruptedException {
+    List<Content> result = new ArrayList<>();
+    List<String> list = semanticSimilarityDirectInDatabase(userInput);
+    for (String str : list) {
+      String[] strings= str.split(":");
+      String str1 = strings[1].substring(0, strings[1].length()-2);
+      result.add(userMapper.findLawByContent(str1));
+    }
+    return result;
+  }
+
 
 
 }
