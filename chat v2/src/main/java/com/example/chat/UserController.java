@@ -330,7 +330,7 @@ public class UserController {
     }
   }
   @GetMapping("finduser")
-  public String findUser(HttpServletRequest request){
+  public Object findUser(HttpServletRequest request){
     String email=request.getParameter("email");
     String name=request.getParameter("name");
     User user=new User();
@@ -338,8 +338,9 @@ public class UserController {
     if((userMapper.findByEmail(user.getUserEmail()))==null){
       return "用户不存在";
     }else {
-
-      userMapper
+      User user1=new User();
+      user1=userMapper.findByEmail(user.getUserEmail());
+      return user1;
     }
   }
 
