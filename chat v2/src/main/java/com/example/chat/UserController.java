@@ -1,23 +1,23 @@
 package com.example.chat;
 
+
+import static com.example.chat.SemanticSimilarity.semanticSimilarityDirectInDatabase;
+
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import javax.mail.Session;
+import java.util.concurrent.ExecutionException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +32,9 @@ public class UserController {
   @Resource
   UserMapper userMapper;
   String getRegisterCode;
+
+  public UserController() throws ExecutionException, InterruptedException {
+  }
 
 
   @GetMapping
@@ -117,16 +120,35 @@ public class UserController {
   @GetMapping ("/register")
   public String UserRegister(HttpServletRequest request) {
     String email = request.getParameter("email");
-    System.out.println(email);
     String password = request.getParameter("password");
     User user = new User();
     user.setUserEmail(email);
     user.setUserPassword(password);
     user.setUserName(user.getUserEmail());
-    System.out.println(user.getUserEmail());
     userMapper.save(user);
     return "添加用户成功";
 
+  }
+
+  @GetMapping("/changepassword")
+  public String userChangePassword(HttpServletRequest request) {
+    String email = request.getParameter("email");
+    String oldpassword = request.getParameter("oldpassword");
+    String newpassword = request.getParameter("newpassword");
+    if (oldpassword.equals(userMapper.findByEmail(email).getUserPassword())) {
+      userMapper.changePassword(email, newpassword);
+      return "修改成功";
+    } else {
+      return "密码错误";
+    }
+  }
+
+  @GetMapping("/resetpassword")
+  public String UserResetPassword(HttpServletRequest request) {
+    String email = request.getParameter("email");
+    String password = request.getParameter("password");
+    userMapper.changePassword(email, password);
+    return "修改密码成功";
   }
 
 
@@ -168,5 +190,98 @@ public class UserController {
     userMapper.deleteLoggedByEmail(cookie);
     return "退出成功";
   }
+
+  //对话功能
+  @PostMapping("/savedialogue")
+  public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
+    String cookie = request.getHeader("session-id");
+    LocalDateTime time = LocalDateTime.now();
+    //System.out.println(dialogue);
+    if(userMapper.findLogInUser(cookie) == null){}
+    else {
+      String email = userMapper.findLogInUser(cookie);
+
+        userMapper.addDialogue(dialogue, email, time);
+
+    }
+
+  }
+
+  @PostMapping("/showdialogues")
+  public List<String> showDialogues(HttpServletRequest request){
+    String cookie = request.getHeader("session-id");
+    if(userMapper.findLogInUser(cookie) == null){
+      return Collections.emptyList();
+    }
+    else {
+      String email = userMapper.findLogInUser(cookie);
+      List<String> list= userMapper.getDialogueTime(email);
+      for (int i = 0; i < list.size(); i++) {
+        for (int j = i + 1; j < list.size(); j++) {
+          if (list.get(i).equals(list.get(j))) {
+            list.remove(j);
+            j--;
+          }
+        }
+      }
+      System.out.println(list);
+      return list;
+    }
+  }
+
+  @GetMapping("/showdialogue")
+  public String showDialogue(HttpServletRequest request){
+    String cookie = request.getParameter("session-id");
+    String time = request.getParameter("time");
+    if(userMapper.findLogInUser(cookie) == null){
+      return "没有找到";
+    } else {
+      String email = userMapper.findLogInUser(cookie);
+      String list = userMapper.findDialogue(email, time);
+      System.out.println(list);
+      return list;
+    }
+  }
+
+  @GetMapping("/deletedialogue")
+  public void deleteDialogue(HttpServletRequest request){
+    String cookie = request.getParameter("session-id");
+    String time = request.getParameter("time");
+    System.out.println(cookie+time);
+    if (userMapper.findLogInUser(cookie) == null){
+    } else {
+      String email = userMapper.findLogInUser(cookie);
+      userMapper.deleteDialogue(email, time);
+    }
+  }
+
+  @GetMapping("/findlaws")
+  public List<Content> findLaws(HttpServletRequest request){
+    String cookie = request.getParameter("session-id");
+    String keyWord = request.getParameter("keyword");
+    List<Content> result = new ArrayList<>();
+    if (userMapper.findLogInUser(cookie) == null){
+      return Collections.emptyList();
+    } else {
+      result.addAll(userMapper.findLaws("%"+keyWord+"%"));
+      return result;
+    }
+  }
+
+
+  @PostMapping("/longsearch")
+  public List<Content> adsadf(@RequestBody String userInput)
+      throws ExecutionException, InterruptedException {
+    List<Content> result = new ArrayList<>();
+    List<String> list = semanticSimilarityDirectInDatabase(userInput);
+    for (String str : list) {
+      String[] strings= str.split(":");
+      String str1 = strings[1].substring(0, strings[1].length()-2);
+      result.add(userMapper.findLawByContent(str1));
+    }
+    return result;
+  }
+
+
 
 }
