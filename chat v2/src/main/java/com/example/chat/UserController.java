@@ -282,6 +282,68 @@ public class UserController {
     return result;
   }
 
+  @GetMapping("/adduser")
+  public String addUser(HttpServletRequest request){
+    String email=request.getParameter("email");
+    String password=request.getParameter("password");
+    String name=request.getParameter("name");
+    User user=new User();
+    user.setUserEmail(email);
+    user.setUserPassword(password);
+    user.setUserName(name);
+    if((userMapper.findByEmail(user.getUserEmail()))!=null){
+      return "用户已存在";
+    }else {
+      userMapper.save(user);
+      return "添加成功";
+    }
+
+  }
+
+  @GetMapping("/deleteuser")
+  public String deleteUser(HttpServletRequest request){
+    String email=request.getParameter("email");
+    User user=new User();
+    user.setUserEmail(email);
+    if((userMapper.findByEmail(user.getUserEmail()))==null){
+      return "用户不存在";
+    }else {
+      userMapper.deleteById(user.getUserEmail());
+      return "删除成功";
+    }
+  }
+
+  @GetMapping("updateuser")
+  public String updateUser(HttpServletRequest request){
+    String email=request.getParameter("email");
+    String password=request.getParameter("password");
+    String name=request.getParameter("name");
+    User user=new User();
+    user.setUserEmail(email);
+    user.setUserPassword(password);
+    user.setUserName(name);
+    if((userMapper.findByEmail(user.getUserEmail()))==null){
+      return "用户不存在";
+    }else {
+      userMapper.updateUser(user);
+      return "修改成功";
+    }
+  }
+  @GetMapping("finduser")
+  public String findUser(HttpServletRequest request){
+    String email=request.getParameter("email");
+    String name=request.getParameter("name");
+    User user=new User();
+    user.setUserEmail(email);
+    if((userMapper.findByEmail(user.getUserEmail()))==null){
+      return "用户不存在";
+    }else {
+
+      userMapper
+    }
+  }
+
+
 
 
 }

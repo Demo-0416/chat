@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -86,4 +87,9 @@ public interface UserMapper {
 
   @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawContent = #{str}")
   Content findLawByContent(String str);
+
+  @Update("UPDATE login SET `username`=#{userName} , `useremail=#{userEmail} , `userpassword=#{userPassword} WHERE `useremail=#{userEmail}")
+  void updateUser(User user);
+
+
 }
