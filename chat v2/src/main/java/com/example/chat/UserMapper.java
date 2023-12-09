@@ -91,5 +91,12 @@ public interface UserMapper {
   @Update("UPDATE login SET `username`=#{userName} , `useremail=#{userEmail} , `userpassword=#{userPassword} WHERE `useremail=#{userEmail}")
   void updateUser(User user);
 
+  @Update("INSERT INTO `content` (`name`, `content`, `explain`) VALUES (#{name}, #{content}, #{explain});")
+  @Transactional
+  void addLaw(com.example.chat.Law law);
+
+  @Delete("DELETE from content where content = #{content}")
+  void deleteLaw(String content);
+
 
 }

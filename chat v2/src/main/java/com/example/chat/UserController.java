@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.w3c.dom.Text;
 
 
 @RestController
@@ -297,7 +298,6 @@ public class UserController {
       userMapper.save(user);
       return "添加成功";
     }
-
   }
 
   @GetMapping("/deleteuser")
@@ -343,6 +343,43 @@ public class UserController {
       return user1;
     }
   }
+
+  @GetMapping("/addlaw")
+  public String addLaw(HttpServletRequest request){
+    String name=request.getParameter("name");
+    String content= request.getParameter("content");
+    String explain=request.getParameter("explain");
+    Law law=new Law();
+    law.setContent(content);
+    law.setExplain(explain);
+    law.setName(name);
+    if((userMapper.findLawByContent(content))!=null){
+      return "法律已存在";
+    }else {
+      userMapper.addLaw(law);
+      return "已成功添加";
+    }
+  }
+
+  @GetMapping("/deletelaw")
+  public String deleteLaw(HttpServletRequest request){
+    String name=request.getParameter("name");
+    String content= request.getParameter("content");
+    String explain=request.getParameter("explain");
+    Law law=new Law();
+    law.setContent(content);
+    law.setExplain(explain);
+    law.setName(name);
+    if((userMapper.findLawByContent(content))==null){
+      return "法律不存在";
+    }else {
+      userMapper.deleteLaw(law.getContent());
+      return "已成功添加";
+    }
+  }
+
+
+
 
 
 

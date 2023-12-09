@@ -19,7 +19,7 @@ public class SemanticSimilarity {
       throws IOException, ExecutionException, InterruptedException {
 
     System.out.println("start to load model");
-    modelLoader.loadModel();
+    ModelLoader.loadModel();
     System.out.println("finished");
     System.out.println(semanticSimilarityDirectInDatabase("从法律角度解读这段新闻：正泰诉施耐德专利侵权案在知识产权界乃至整个法律界具有深远的影响，在中国将知识产权作为战略发展规划的今天具有不可估量的影响。\n" +
         "\n" +
@@ -39,7 +39,7 @@ public class SemanticSimilarity {
   }
   public static List<String> semanticSimilarityDirectInDatabase(String userMessage) throws ExecutionException, InterruptedException {
     List<String> topLaws = new ArrayList<>();
-    WordVectorModel wordVectorModel = modelLoader.getModel();
+    WordVectorModel wordVectorModel = ModelLoader.getModel();
     try {
       String[] userKeywords = keywordExtraction(userMessage, 100).split(",");
       System.out.println(userKeywords);
@@ -77,7 +77,7 @@ public class SemanticSimilarity {
 
   public static List<String> semanticSimilarityDirectInRegulations(String userMessage) throws ExecutionException, InterruptedException {
     List<String> topLaws = new ArrayList<>();
-    WordVectorModel wordVectorModel = modelLoader.getModel();
+    WordVectorModel wordVectorModel = ModelLoader.getModel();
     try {
       String[] userKeywords = keywordExtraction(userMessage, 100).split(",");
       System.out.println(userKeywords);
