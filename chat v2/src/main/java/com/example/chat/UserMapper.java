@@ -98,5 +98,8 @@ public interface UserMapper {
   @Delete("DELETE from content where content = #{content}")
   void deleteLaw(String content);
 
+  @Update("UPDATE content SET `explain=#{explain} WHERE `content=#{content}")
+  void updateLaw(@Param("explain") String explain);
+
 
 }

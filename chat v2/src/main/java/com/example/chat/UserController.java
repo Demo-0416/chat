@@ -378,6 +378,42 @@ public class UserController {
     }
   }
 
+  @GetMapping("/updatelaw")
+  public String updateLaw(HttpServletRequest request){
+    String name=request.getParameter("name");
+    String content= request.getParameter("content");
+    String explain=request.getParameter("explain");
+    Law law=new Law();
+    law.setContent(content);
+    law.setExplain(explain);
+    law.setName(name);
+    if(userMapper.findLawByContent(law.getContent())==null){
+      return "法律不存在";
+    }else {
+      userMapper.updateLaw(law.getExplain());
+      return "已修改";
+    }
+  }
+
+  @GetMapping("/findlaw")
+  public Object findLaw(HttpServletRequest request){
+    String name=request.getParameter("name");
+    String content= request.getParameter("content");
+    String explain=request.getParameter("explain");
+    Law law=new Law();
+    law.setContent(content);
+    law.setExplain(explain);
+    law.setName(name);
+    if(userMapper.findLawByContent(law.getContent())==null){
+      return "法律不存在";
+    }else {
+      List<Content> law1=new ArrayList<>();
+      law1=userMapper.findLaws(law.getExplain());
+      return law1;
+    }
+
+  }
+
 
 
 
