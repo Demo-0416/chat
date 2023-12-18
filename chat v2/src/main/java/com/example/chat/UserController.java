@@ -381,15 +381,20 @@ public class UserController {
   public String addLaw(HttpServletRequest request){
     String name=request.getParameter("name");
     String content= request.getParameter("content");
-    String explain=request.getParameter("explain");
+    String nameExplain="",lawExplain="";
+    //将name和explain传到生成解释函数，分别得到法律和名称的explain，存入belong表和content表
     Law law=new Law();
     law.setContent(content);
-    law.setExplain(explain);
+    law.setExplain(lawExplain);
     law.setName(name);
+    Belong belong=new Belong();
+    belong.setName(name);
+    belong.setExplain(nameExplain);
     if((userMapper.findLawByContent(content))!=null){
       return "法律已存在";
     }else {
       userMapper.addLaw(law);
+      userMapper.addBelong(belong);
       return "已成功添加";
     }
   }
@@ -398,16 +403,14 @@ public class UserController {
   public String deleteLaw(HttpServletRequest request){
     String name=request.getParameter("name");
     String content= request.getParameter("content");
-    String explain=request.getParameter("explain");
     Law law=new Law();
     law.setContent(content);
-    law.setExplain(explain);
     law.setName(name);
     if((userMapper.findLawByContent(content))==null){
       return "法律不存在";
     }else {
       userMapper.deleteLaw(law.getContent());
-      return "已成功添加";
+      return "已成功删除1q";
     }
   }
 
@@ -415,10 +418,8 @@ public class UserController {
   public String updateLaw(HttpServletRequest request){
     String name=request.getParameter("name");
     String content= request.getParameter("content");
-    String explain=request.getParameter("explain");
     Law law=new Law();
     law.setContent(content);
-    law.setExplain(explain);
     law.setName(name);
     if(userMapper.findLawByContent(law.getContent())==null){
       return "法律不存在";
@@ -431,26 +432,88 @@ public class UserController {
   @GetMapping("/findlaw")
   public Object findLaw(HttpServletRequest request){
     String name=request.getParameter("name");
-    String content= request.getParameter("content");
+    String content=request.getParameter("content");
     String explain=request.getParameter("explain");
     Law law=new Law();
-    law.setContent(content);
-    law.setExplain(explain);
     law.setName(name);
-    if(userMapper.findLawByContent(law.getContent())==null){
+    law.setExplain(explain);
+    law.setContent(content);
+    if(userMapper.findLawByName(name)==null&&name!=null){
       return "法律不存在";
-    }else {
-      List<Content> law1=new ArrayList<>();
-      law1=userMapper.findLaws(law.getExplain());
-      return law1;
+    } else if (name==null) {
+      if(userMapper.findLawsByContent(content)==null){
+        return "相关法律不存在";
+      } else if (content == null) {
+        if(userMapper.findLaws(explain)==null){
+          return "相关法律不存在";
+        } else if (explain == null) {
+          return "请输入相关内容";
+        }else {
+          return userMapper.findLaws(explain);
+        }
+      } else {
+        if(userMapper.findLaws(explain)==null){
+          return "相关法律不存在";
+        } else if (explain == null) {
+          return userMapper.findLawsByContent(content);
+        }else {
+          return userMapper.findLawByContentAndExplain(content,explain);
+        }
+      }
+    } else {
+      if(userMapper.findLawsByContent(content)==null){
+        return "相关法律不存在";
+      } else if (content == null) {
+        if(userMapper.findLaws(explain)==null){
+          return "相关法律不存在";
+        } else if (explain == null) {
+          return userMapper.findLawByName(name);
+        }else {
+          return userMapper.findLawByBoth(name,explain);
+        }
+      } else {
+        if(userMapper.findLaws(explain)==null){
+          return "相关法律不存在";
+        } else if (explain == null) {
+          return userMapper.findLawsByContentAndName(name,content);
+        }else {
+          return userMapper.findLawByTriple(name,content,explain);
+        }
+      }
     }
-
+    /*if(name==null&&explain!=null){
+      if(userMapper.findLaws(explain)==null){
+        return "相关法律不存在";
+      }else {
+        return userMapper.findLaws(explain);
+      }
+    } else if (name != null && explain == null) {
+      if(userMapper.findLawByName(name)==null){
+        return "法律不存在";
+      }else {
+        List<Content> law1=new ArrayList<>();
+        law1=userMapper.findLaws(law.getExplain());
+        return law1;
+      }
+    } else if (name != null && explain != null) {
+      if(userMapper.findLawByName(name)==null){
+        return "法律不存在";
+      }else {
+        if(userMapper.findLaws(explain)==null){
+          return "相关法律不存在";
+        }else {
+          return userMapper.findLawByBoth(name,explain);
+        }
+      }
+    }else {
+      return "请输入法律名称或相关法律解释";
+    }*/
   }
-
-
-
-
-
-
-
+  @GetMapping("/test")
+  public Object test(HttpServletRequest request){
+    String name=request.getParameter("name");
+    String content=request.getParameter("content");
+    String explain=request.getParameter("explain");
+    return userMapper.findLawByTriple(name,content,explain);
+  }
 }

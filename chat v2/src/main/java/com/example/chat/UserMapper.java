@@ -99,7 +99,7 @@ public interface UserMapper {
   void deleteDialogue(String email, String time);
 
   //法律表
-  @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawExplain like #{str}")
+  @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawExplain like  CONCAT('%', #{str}, '%')")
   List<Content> findLaws(String str);
 
   @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawContent = #{str}")
@@ -117,6 +117,27 @@ public interface UserMapper {
 
   @Update("UPDATE content SET `explain=#{explain} WHERE `content=#{content}")
   void updateLaw(@Param("explain") String explain);
+
+  @Insert("insert into belong ('LawName','lawExplain') values (#{name},#{explain})")
+  void addBelong(Belong belong);
+
+  @Select("select * from content where lawName=#{name}")
+  List<Content> findLawByName(@Param("name") String name);
+
+  @Select("select * from content where lawName=#{name} and lawExplain like CONCAT('%',#{explain},'%')")
+  List<Content> findLawByBoth(@Param("name") String name,@Param("explain") String explain);
+
+  @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawContent like  CONCAT('%', #{lawContent}, '%')")
+  List<Content> findLawsByContent(String str);
+
+  @Select("select * from content where lawContent like  CONCAT('%', #{lawContent}, '%') and lawExplain like CONCAT('%',#{explain},'%')")
+  List<Content> findLawByContentAndExplain(@Param("lawContent") String content,@Param("explain") String explain);
+
+  @Select("select * from content where lawName=#{name} and lawContent like  CONCAT('%', #{lawContent}, '%')")
+  List<Content> findLawsByContentAndName(@Param("name") String name,@Param("lawContent") String content);
+
+  @Select("select * from content where lawName=#{name} and lawContent like CONCAT('%', #{lawContent}, '%') and lawExplain like CONCAT('%',#{explain},'%')")
+  List<Content> findLawByTriple(@Param("name") String name,@Param("lawContent") String content,@Param("explain") String explain);
 
 
 
