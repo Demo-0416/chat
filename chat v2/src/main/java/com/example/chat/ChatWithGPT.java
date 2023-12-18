@@ -16,6 +16,7 @@ public class ChatWithGPT {
     static ArrayDeque<String> userMessagesHistory = new ArrayDeque<>();
     static ArrayDeque<String> gptResponsesHistory = new ArrayDeque<>();
 
+    static UserMapper userMapper;
 
     public static String generatePrompt() {
         StringBuilder prompt = new StringBuilder();
@@ -68,6 +69,14 @@ public class ChatWithGPT {
         while(true){
             chat();
         }
+    }
+
+    public static void saveToDatabase(int id){
+        userMapper.updateUserGpt(id, serializeDeque(userMessagesHistory), serializeDeque(gptResponsesHistory));
+    }
+
+    public String returnUserMessage(){
+        return serializeDeque(userMessagesHistory);
     }
 
     public static String serializeDeque(ArrayDeque<String> deque) {

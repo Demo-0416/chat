@@ -69,7 +69,7 @@ public class UserController {
 
     if(user == null) {
 
-      String registerCode = number.GetNumber(email);
+      String registerCode = GetCodeNumber.GetNumber(email);
 
       String email1Register = userMapper.findRegisterByEmail(email);
       if(email1Register == null){
@@ -197,17 +197,27 @@ public class UserController {
   //对话功能
   @PostMapping("/savedialogue")
   public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
-    String cookie = request.getHeader("session-id");
-    String dialogueId = request.getParameter("dialogueid");
+    ChatWithGPT chat = new ChatWithGPT();
+    String cookie = request.getParameter("session-id");
+    int dialogueId = Integer.parseInt(request.getParameter("dialogueid"));
     LocalDateTime time = LocalDateTime.now();
-    //System.out.println(dialogue);
-    if(userMapper.findLogInUser(cookie) == null){}
-    else {
-      String email = userMapper.findLogInUser(cookie);
-
+    if(dialogueId == 0) {
+      if(userMapper.findLogInUser(cookie) == null){}
+      else {
+        String email = userMapper.findLogInUser(cookie);
         userMapper.addDialogue(dialogue, email, time);
+        String userMessageHistory = chat.returnUserMessage();
+        System.out.println(userMessageHistory);
+      }
+    } else {
+      if(userMapper.findLogInUser(cookie) == null){}
+      else {
+        String email = userMapper.findLogInUser(cookie);
+        userMapper.updateDialogue(dialogue, email, time, dialogueId);
 
+      }
     }
+
 
   }
 
@@ -286,7 +296,27 @@ public class UserController {
     return result;
   }
 
+  @GetMapping("/getname")
+  public String findUserName(HttpServletRequest request) {
+    String cookie = request.getParameter("session-id");
+    if(userMapper.findLogInUser(cookie) == null) {
+      return null;
+    } else {
+      String email = userMapper.findLogInUser(cookie);
+      return userMapper.findLogInUserName(email);
+    }
 
+  }
+
+  @GetMapping("/setname")
+  public void setUserName(HttpServletRequest request) {
+    String cookie = request.getParameter("seesion-id");
+    String newName = request.getParameter("newname");
+    if(userMapper.findLogInUser(cookie) == null) {}
+    else {
+      userMapper.setUserName(newName, userMapper.findLogInUser(cookie));
+    }
+  }
 
   @GetMapping("/adduser")
   public String addUser(HttpServletRequest request){

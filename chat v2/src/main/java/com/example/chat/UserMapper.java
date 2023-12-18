@@ -60,6 +60,12 @@ public interface UserMapper {
   @Select("SELECT email from logged where cookie = #{cookie}")
   String findLogInUser(String cookie);
 
+  @Select("SELECT username from user where useremail = #{email}")
+  String findLogInUserName(String email);
+
+  @Update("update user set username = #{newName} where useremail = #{email};")
+  void setUserName(String newName, String email);
+
   @Delete("DELETE from logged where cookie = #{cookie}")
   void deleteLoggedByEmail(String cookie);
 
@@ -67,10 +73,21 @@ public interface UserMapper {
   @Transactional
   void updateLogInUser(String email, String cookie);
 
+
+
+
   //对话内容表
   @Update("INSERT INTO `dialogue` (`dialogue`, `email`, `time`) VALUES (#{dialogue}, #{email}, #{time});")
   @Transactional
   void addDialogue(String dialogue, String email, LocalDateTime time);
+
+  @Update("update dialogue set dialogue = #{dialogue}, time = #{time} where email = #{email} and dialogueId = #{id}")
+  @Transactional
+  void updateDialogue(String dialogue, String email, LocalDateTime time, int id);
+
+  @Update("update dialogue set userMessageHistory = #{userMessage}, gptMessageHistory = #{gptMessage} where dialogueId = #{id}")
+  @Transactional
+  void updateUserGpt(int id, String userMessage, String gptMessage);
 
   @Select("SELECT `time` from dialogue where email = #{email}")
   List<String> getDialogueTime(String email);
@@ -100,6 +117,7 @@ public interface UserMapper {
 
   @Update("UPDATE content SET `explain=#{explain} WHERE `content=#{content}")
   void updateLaw(@Param("explain") String explain);
+
 
 
 }
