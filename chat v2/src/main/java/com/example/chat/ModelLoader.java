@@ -15,7 +15,7 @@ public class ModelLoader {
         modelFuture = executorService.submit(() -> {
             System.out.println("Asynchronously loading model...");
             try {
-                return new WordVectorModel("/root/sgns.baidubaike.bigram-char");
+                return new WordVectorModel("E:\\javaproject\\demo\\sgns.baidubaike.bigram-char");
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

@@ -16,7 +16,7 @@ import java.net.InetSocketAddress;
 
 public class GPT3API {
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
 
     public static String getResponse(String prompt) {
         try {
@@ -27,7 +27,7 @@ public class GPT3API {
             connection.setRequestProperty("Content-Type", "application/json");
 
             // Create and send the API request
-            String jsonRequestBody = "{\"model\": \"gpt-3.5-turbo\", \"messages\": [" + prompt + "]}";
+            String jsonRequestBody = "{\"model\": \"gpt-4\", \"messages\": [" + prompt + "]}";
             connection.setDoOutput(true);
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             writer.write(jsonRequestBody);

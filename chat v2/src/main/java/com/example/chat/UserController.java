@@ -206,8 +206,6 @@ public class UserController {
       else {
         String email = userMapper.findLogInUser(cookie);
         userMapper.addDialogue(dialogue, email, time);
-        String userMessageHistory = chat.returnUserMessage();
-        System.out.println(userMessageHistory);
       }
     } else {
       if(userMapper.findLogInUser(cookie) == null){}
