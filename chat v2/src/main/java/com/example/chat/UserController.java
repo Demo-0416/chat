@@ -25,7 +25,7 @@ import org.w3c.dom.Text;
 
 
 @RestController
-@CrossOrigin
+@CrossOrigin()
 @RequestMapping("/user")
 public class UserController {
 
@@ -154,6 +154,8 @@ public class UserController {
 
 
 
+
+
   @GetMapping ("/login")
   public String userLogin(HttpServletRequest request){
     String email=request.getParameter("email");
@@ -196,6 +198,7 @@ public class UserController {
   @PostMapping("/savedialogue")
   public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
     String cookie = request.getHeader("session-id");
+    String dialogueId = request.getParameter("dialogueid");
     LocalDateTime time = LocalDateTime.now();
     //System.out.println(dialogue);
     if(userMapper.findLogInUser(cookie) == null){}
@@ -282,6 +285,8 @@ public class UserController {
     }
     return result;
   }
+
+
 
   @GetMapping("/adduser")
   public String addUser(HttpServletRequest request){

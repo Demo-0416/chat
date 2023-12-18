@@ -1,5 +1,7 @@
 package com.example.chat;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayDeque;
@@ -67,4 +69,18 @@ public class ChatWithGPT {
             chat();
         }
     }
+
+    public static String serializeDeque(ArrayDeque<String> deque) {
+        return new JSONArray(deque).toString();
+    }
+
+    public static ArrayDeque<String> deserializeDeque(String serializedData) throws JSONException {
+        ArrayDeque<String> deque = new ArrayDeque<>();
+        JSONArray jsonArray = new JSONArray(serializedData);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            deque.add(jsonArray.getString(i));
+        }
+        return deque;
+    }
+
 }

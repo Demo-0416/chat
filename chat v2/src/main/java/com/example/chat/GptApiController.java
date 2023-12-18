@@ -14,7 +14,7 @@ import static com.example.chat.ChatWithGPT.gptResponsesHistory;
 @RestController
 @RequestMapping("/chat")
 public class GptApiController {
-    @PostMapping("/userMessage")
+    @PostMapping("/NewUserMessage")
     public ResponseEntity<String>receiveUserMessage(@RequestBody String userMessage) throws Exception {
         System.out.println("接收到用户信息，开始计算相似度");
         if(count==0)
@@ -35,4 +35,6 @@ public class GptApiController {
 
     int count = 0;
 }
+
+
 
