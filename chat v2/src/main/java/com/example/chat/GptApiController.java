@@ -17,10 +17,10 @@ public class GptApiController {
 
     @PostMapping("/NewUserMessage")
     public ResponseEntity<String>receiveUserMessage(HttpServletRequest request) throws Exception {
-        int userId=Integer.parseInt(request.getParameter("userId"));
-        System.out.println(userId);
+        int dialogueId=Integer.parseInt(request.getParameter("dialogueId"));
+        System.out.println(dialogueId);
         String userMessage=request.getParameter("userMessage");
-        UserSession session = userSessions.computeIfAbsent(String.valueOf(userId), k -> new UserSession());
+        UserSession session = userSessions.computeIfAbsent(String.valueOf(dialogueId), k -> new UserSession());
         System.out.println("接收到用户信息，开始计算相似度");
         if (session.isEmpty()) {
             System.out.println("这是一个新的session");

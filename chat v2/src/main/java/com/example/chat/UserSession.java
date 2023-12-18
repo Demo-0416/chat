@@ -2,6 +2,8 @@ package com.example.chat;
 
 
 import lombok.Getter;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayDeque;
 
@@ -38,7 +40,27 @@ public class UserSession {
         if (!prompt.isEmpty()) {
             prompt.setLength(prompt.length() - 1);
         }
+        System.out.println(prompt);
         return prompt.toString();
+    }
+
+    public String returnUserMessage(){
+        return serializeDeque(userMessagesHistory);
+    }
+    public String returnGptResponse(){
+        return serializeDeque(gptResponsesHistory);
+    }
+    public static String serializeDeque(ArrayDeque<String> deque) {
+        return new JSONArray(deque).toString();
+    }
+
+    public static ArrayDeque<String> deserializeDeque(String serializedData) throws JSONException {
+        ArrayDeque<String> deque = new ArrayDeque<>();
+        JSONArray jsonArray = new JSONArray(serializedData);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            deque.add(jsonArray.getString(i));
+        }
+        return deque;
     }
 
 }
