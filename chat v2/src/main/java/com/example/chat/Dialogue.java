@@ -6,5 +6,6 @@ import lombok.Data;
 public class Dialogue {
     String userMessage;
     String gptMessage;
+    String time;
     int dialogueId;
 }

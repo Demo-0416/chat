@@ -76,15 +76,15 @@ public interface UserMapper {
 
 
   //对话内容表
-  @Update("INSERT INTO `dialogue` (`dialogue`, `email`, `time`, `userMessageHistory`, `gptMessageHistory`) VALUES (#{dialogue}, #{email}, #{time}, #{userMessages}, #{gptResponse});")
+  @Update("INSERT INTO `dialogue` (`dialogue`, `email`, `time`, `userMessageHistory`, `gptResponseHistory`) VALUES (#{dialogue}, #{email}, #{time}, #{userMessages}, #{gptResponse});")
   @Transactional
   void addDialogue(String dialogue, String email, LocalDateTime time, String userMessages, String gptResponse);
 
-  @Update("update dialogue set dialogue = #{dialogue}, time = #{time}, userMessageHistory = #{userMessages}, gptMessageHistory = #{gptResponse} where email = #{email} and dialogueId = #{id}")
+  @Update("update dialogue set dialogue = #{dialogue}, time = #{time}, userMessageHistory = #{userMessages}, gptResponseHistory = #{gptResponse} where email = #{email} and dialogueId = #{id}")
   @Transactional
   void updateDialogue(String dialogue, String email, LocalDateTime time, int id, String userMessages, String gptResponse);
 
-  @Update("update dialogue set userMessageHistory = #{userMessage}, gptMessageHistory = #{gptMessage} where dialogueId = #{id}")
+  @Update("update dialogue set userMessageHistory = #{userMessage}, gptResponseHistory = #{gptMessage} where dialogueId = #{id}")
   @Transactional
   void updateUserGpt(int id, String userMessage, String gptMessage);
 
@@ -105,6 +105,9 @@ public interface UserMapper {
 
   @Select("SELECT `gptMessageHistory` from dialogue where dialogueId = #{id}")
   String findGptMessage(int id);
+
+  @Select("SELECT dialogueId from dialogue where `time` = #{time} and email = #{email}")
+  int findDialogueIdByTime(String time, String email);
 
   //法律表
   @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawExplain like  CONCAT('%', #{str}, '%')")

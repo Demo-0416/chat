@@ -199,8 +199,8 @@ public class UserController {
   //对话功能
   @PostMapping("/savedialogue")
   public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
-    String cookie = request.getParameter("session-id");
-    int dialogueId = Integer.parseInt(request.getParameter("dialogueid"));
+    String cookie = request.getHeader("session-id");
+    int dialogueId = Integer.parseInt(request.getHeader("dialogueid"));
     LocalDateTime time = LocalDateTime.now();
     DialogueSession session=sessionManager.getSession(String.valueOf(dialogueId));
     String userMessages=session.returnUserMessage();
@@ -233,25 +233,32 @@ public class UserController {
   }
 
   @PostMapping("/showdialogues")
-  public List<Integer> showDialogues(HttpServletRequest request){
-    List<Integer> dialogueIds = new ArrayList<Integer>();
+  public List<Dialogue> showDialogues(HttpServletRequest request){
+    List<Dialogue> returnMessage = new ArrayList<>();
     String cookie = request.getHeader("session-id");
     if(userMapper.findLogInUser(cookie) == null){
       return Collections.emptyList();
     }
     else {
+
       String email = userMapper.findLogInUser(cookie);
       List<String> list= userMapper.getDialogueTime(email);
       for (int i = 0; i < list.size(); i++) {
+        Dialogue dialogue = new Dialogue();
         for (int j = i + 1; j < list.size(); j++) {
           if (list.get(i).equals(list.get(j))) {
             list.remove(j);
             j--;
           }
         }
+        System.out.println(list.get(i));
+        dialogue.setTime(list.get(i));
+        System.out.println(userMapper.findDialogueIdByTime(dialogue.getTime(), email));
+        dialogue.setDialogueId(userMapper.findDialogueIdByTime(dialogue.getTime(), email));
+        returnMessage.add(dialogue);
       }
-      dialogueIds.add(userMapper.findDialogueId(email));
-      return dialogueIds;
+      System.out.println(returnMessage);
+      return returnMessage;
     }
   }
 
@@ -263,6 +270,7 @@ public class UserController {
     if(userMapper.findLogInUser(cookie) == null){
       return "没有找到";
     } else {
+      System.out.println(cookie+" "+time+" "+id);
       String email = userMapper.findLogInUser(cookie);
       String list = userMapper.findDialogue(email, time, id);
       System.out.println(list);
@@ -323,7 +331,7 @@ public class UserController {
 
   @GetMapping("/setname")
   public void setUserName(HttpServletRequest request) {
-    String cookie = request.getParameter("seesion-id");
+    String cookie = request.getParameter("session-id");
     String newName = request.getParameter("newname");
     if(userMapper.findLogInUser(cookie) == null) {}
     else {
