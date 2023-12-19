@@ -1,9 +1,8 @@
 package com.example.chat;
 
-import com.example.chat.User;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -77,13 +76,13 @@ public interface UserMapper {
 
 
   //对话内容表
-  @Update("INSERT INTO `dialogue` (`dialogue`, `email`, `time`) VALUES (#{dialogue}, #{email}, #{time});")
+  @Update("INSERT INTO `dialogue` (`dialogue`, `email`, `time`, `userMessageHistory`, `gptMessageHistory`) VALUES (#{dialogue}, #{email}, #{time}, #{userMessages}, #{gptResponse});")
   @Transactional
-  void addDialogue(String dialogue, String email, LocalDateTime time);
+  void addDialogue(String dialogue, String email, LocalDateTime time, String userMessages, String gptResponse);
 
-  @Update("update dialogue set dialogue = #{dialogue}, time = #{time} where email = #{email} and dialogueId = #{id}")
+  @Update("update dialogue set dialogue = #{dialogue}, time = #{time}, userMessageHistory = #{userMessages}, gptMessageHistory = #{gptResponse} where email = #{email} and dialogueId = #{id}")
   @Transactional
-  void updateDialogue(String dialogue, String email, LocalDateTime time, int id);
+  void updateDialogue(String dialogue, String email, LocalDateTime time, int id, String userMessages, String gptResponse);
 
   @Update("update dialogue set userMessageHistory = #{userMessage}, gptMessageHistory = #{gptMessage} where dialogueId = #{id}")
   @Transactional
@@ -92,11 +91,20 @@ public interface UserMapper {
   @Select("SELECT `time` from dialogue where email = #{email}")
   List<String> getDialogueTime(String email);
 
-  @Select("SELECT `dialogue` from dialogue where email = #{email} and `time` = #{time}")
-  String findDialogue(String email, String time);
+  @Select("SELECT `dialogueId` from dialogue where email = #{email}")
+  Integer findDialogueId(String email);
+
+  @Select("SELECT `dialogue` from dialogue where email = #{email} and `time` = #{time} and `dialogueId` = #{id}")
+  String findDialogue(String email, String time, int id);
 
   @Delete("DELETE from dialogue where email = #{email} and `time` = #{time}")
   void deleteDialogue(String email, String time);
+
+  @Select("SELECT `userMessageHistory` from dialogue where dialogueId = #{id}")
+  String findUserMessage(int id);
+
+  @Select("SELECT `gptMessageHistory` from dialogue where dialogueId = #{id}")
+  String findGptMessage(int id);
 
   //法律表
   @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawExplain like  CONCAT('%', #{str}, '%')")
@@ -105,7 +113,7 @@ public interface UserMapper {
   @Select("SELECT `lawName`, `lno`, `lawContent` from content where lawContent = #{str}")
   Content findLawByContent(String str);
 
-  @Update("UPDATE login SET `username`=#{userName} , `useremail=#{userEmail} , `userpassword=#{userPassword} WHERE `useremail=#{userEmail}")
+  @Update("UPDATE login SET `username`=#{userName} , `useremail` = #{userEmail} , `userpassword` =#{userPassword} WHERE `useremail` = #{userEmail}")
   void updateUser(User user);
 
   @Update("INSERT INTO `content` (`name`, `content`, `explain`) VALUES (#{name}, #{content}, #{explain});")

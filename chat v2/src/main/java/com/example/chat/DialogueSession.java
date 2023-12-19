@@ -1,13 +1,14 @@
 package com.example.chat;
 
 
+import lombok.Data;
 import lombok.Getter;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayDeque;
 
-public class UserSession {
+public class DialogueSession {
     @Getter
     private ArrayDeque<String> userMessagesHistory = new ArrayDeque<>();
     @Getter

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.Text;
 
 
 @RestController
@@ -29,13 +29,15 @@ import org.w3c.dom.Text;
 @RequestMapping("/user")
 public class UserController {
 
-
   @Resource
   UserMapper userMapper;
   String getRegisterCode;
+  private final SessionManager sessionManager;
 
-  public UserController() throws ExecutionException, InterruptedException {
+  public UserController(SessionManager sessionManager) throws ExecutionException, InterruptedException {
+    this.sessionManager = sessionManager;
   }
+
 
 
   @GetMapping
@@ -197,30 +199,42 @@ public class UserController {
   //对话功能
   @PostMapping("/savedialogue")
   public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
-    ChatWithGPT chat = new ChatWithGPT();
     String cookie = request.getParameter("session-id");
     int dialogueId = Integer.parseInt(request.getParameter("dialogueid"));
     LocalDateTime time = LocalDateTime.now();
-    if(dialogueId == 0) {
+    DialogueSession session=sessionManager.getSession(String.valueOf(dialogueId));
+    String userMessages=session.returnUserMessage();
+    String gptResponse=session.returnGptResponse();
+
+    if(dialogueId == 0)  {
       if(userMapper.findLogInUser(cookie) == null){}
       else {
         String email = userMapper.findLogInUser(cookie);
-        userMapper.addDialogue(dialogue, email, time);
+        userMapper.addDialogue(dialogue, email, time, userMessages, gptResponse);
       }
     } else {
       if(userMapper.findLogInUser(cookie) == null){}
       else {
         String email = userMapper.findLogInUser(cookie);
-        userMapper.updateDialogue(dialogue, email, time, dialogueId);
+        userMapper.updateDialogue(dialogue, email, time, dialogueId, userMessages, gptResponse);
 
       }
     }
+  }
 
-
+  @GetMapping("/loaddialogue")
+  public Dialogue loadDialogue(HttpServletRequest request) {
+    int id = Integer.parseInt(request.getParameter("dialogueid"));
+    Dialogue dialogue = new Dialogue();
+    dialogue.setUserMessage(userMapper.findUserMessage(id));
+    dialogue.setGptMessage(userMapper.findGptMessage(id));
+    dialogue.setDialogueId(id);
+    return dialogue;
   }
 
   @PostMapping("/showdialogues")
-  public List<String> showDialogues(HttpServletRequest request){
+  public List<Integer> showDialogues(HttpServletRequest request){
+    List<Integer> dialogueIds = new ArrayList<Integer>();
     String cookie = request.getHeader("session-id");
     if(userMapper.findLogInUser(cookie) == null){
       return Collections.emptyList();
@@ -236,8 +250,8 @@ public class UserController {
           }
         }
       }
-      System.out.println(list);
-      return list;
+      dialogueIds.add(userMapper.findDialogueId(email));
+      return dialogueIds;
     }
   }
 
@@ -245,11 +259,12 @@ public class UserController {
   public String showDialogue(HttpServletRequest request){
     String cookie = request.getParameter("session-id");
     String time = request.getParameter("time");
+    int id = Integer.parseInt(request.getParameter("id"));
     if(userMapper.findLogInUser(cookie) == null){
       return "没有找到";
     } else {
       String email = userMapper.findLogInUser(cookie);
-      String list = userMapper.findDialogue(email, time);
+      String list = userMapper.findDialogue(email, time, id);
       System.out.println(list);
       return list;
     }
@@ -283,7 +298,7 @@ public class UserController {
 
   @PostMapping("/longsearch")
   public List<Content> adsadf(@RequestBody String userInput)
-      throws ExecutionException, InterruptedException {
+          throws ExecutionException, InterruptedException {
     List<Content> result = new ArrayList<>();
     List<String> list = semanticSimilarityDirectInDatabase(userInput);
     for (String str : list) {
