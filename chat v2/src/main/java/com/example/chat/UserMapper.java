@@ -150,6 +150,46 @@ public interface UserMapper {
   @Select("select * from content where lawName=#{name} and lawContent like CONCAT('%', #{lawContent}, '%') and lawExplain like CONCAT('%',#{explain},'%')")
   List<Content> findLawByTriple(@Param("name") String name,@Param("lawContent") String content,@Param("explain") String explain);
 
+  @Select("select * from belong where lawName=#{name}")
+  List<Belong> findLawsByName(@Param("name") String name);
+
+  @Select("select * from user where username like CONCAT('%',#{name},'%')")
+  List<User> findByName(@Param("name") String name);
+
+  @Select("select * from user where useremail like CONCAT('%',#{email},'%')")
+  List<User> findLikeEmail(@Param("email") String email);
+
+  @Select("select * from user where useremail like CONCAT('%',#{email},'%') and username like CONCAT('%',#{name},'%')")
+  List<User> findByNameAndEmail(@Param("name") String name,@Param("email") String email);
+
+  @Select("select mangerID from manager")
+  List<Integer> getManager();
+
+  @Insert("insert into manager (managername,manageremail,managerpassword) values (#{managerName},#{managerEmail},#{managerPassWord})")
+  void managerSave(Manager manager);
+
+  @Select("select * from manager where manageremail=#{email}")
+  Manager findManagerByEmail(@Param("email") String email);
+
+  @Select("SELECT managername from manager where manageremail = #{email}")
+  String findLogInManagerName(String email);
+
+  @Update("update manager set managername = #{newName} where manageremail = #{email};")
+  void setManagerName(String newName, String email);
+
+  @Select("select managerreceive from advice where userermail=#{email} and code=1")
+  List<Advice> getManagerResponse(@Param("email") String email);
+
+  @Select("select useradvice from advice where number=#{managerID} and code=0")
+  List<Advice> managerReceive(@Param("managerID") String managerID);
+
+  @Update("update advice set `managerreceive`=#{response}, code=1 where adviceID=#{adviceId} and code=0")
+  @Transactional
+  void managerSendResponse(@Param("response") String response,@Param("adviceId") int adviceId);
+
+  @Insert("insert into advice (useremail,useradvice,number) values (#{userEmail},#{userAdvice},#{turnsNumber})")
+  void sendAdvice(Advice advice);
+
 
 
 }

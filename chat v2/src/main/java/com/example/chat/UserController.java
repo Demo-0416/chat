@@ -3,6 +3,7 @@ package com.example.chat;
 
 import static com.example.chat.SemanticSimilarity.semanticSimilarityDirectInDatabase;
 
+import com.hankcs.hanlp.HanLP;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.Connection;
@@ -343,11 +344,10 @@ public class UserController {
   public String addUser(HttpServletRequest request){
     String email=request.getParameter("email");
     String password=request.getParameter("password");
-    String name=request.getParameter("name");
     User user=new User();
     user.setUserEmail(email);
     user.setUserPassword(password);
-    user.setUserName(name);
+    user.setUserName(email);
     if((userMapper.findByEmail(user.getUserEmail()))!=null){
       return "用户已存在";
     }else {
@@ -373,14 +373,14 @@ public class UserController {
   public String updateUser(HttpServletRequest request){
     String email=request.getParameter("email");
     String password=request.getParameter("password");
-    String name=request.getParameter("name");
     User user=new User();
     user.setUserEmail(email);
     user.setUserPassword(password);
-    user.setUserName(name);
     if((userMapper.findByEmail(user.getUserEmail()))==null){
       return "用户不存在";
     }else {
+      user=userMapper.findByEmail(email);
+      user.setUserPassword(password);
       userMapper.updateUser(user);
       return "修改成功";
     }
@@ -391,12 +391,25 @@ public class UserController {
     String name=request.getParameter("name");
     User user=new User();
     user.setUserEmail(email);
-    if((userMapper.findByEmail(user.getUserEmail()))==null){
-      return "用户不存在";
+    user.setUserName(name);
+    if(email==null){
+      if(name==null){
+        return "请输入相关信息";
+      } else if (userMapper.findByName(name)==null) {
+        return "请输入正确的用户名或邮箱";
+      } else {
+        return userMapper.findByName(name);
+      }
+    } else if (userMapper.findLikeEmail(email) == null) {
+      return "邮箱不存在";
     }else {
-      User user1=new User();
-      user1=userMapper.findByEmail(user.getUserEmail());
-      return user1;
+      if(name==null){
+        return userMapper.findLikeEmail(email);
+      } else if (userMapper.findByName(name)==null) {
+        return "用户名不存在";
+      }else {
+        return userMapper.findByNameAndEmail(name,email);
+      }
     }
   }
 
@@ -405,6 +418,20 @@ public class UserController {
     String name=request.getParameter("name");
     String content= request.getParameter("content");
     String nameExplain="",lawExplain="";
+    List<String> nameExplainList = HanLP.extractKeyword(name,10);
+    List<String> lawExplainList = HanLP.extractKeyword(content,20);
+    for(int i=0;i<nameExplainList.size();i++){
+      nameExplain+=nameExplainList.get(i);
+      if((i+1)!=nameExplainList.size()){
+        nameExplain+=",";
+      }
+    }
+    for(int i=0;i<lawExplainList.size();i++){
+      lawExplain+=lawExplainList.get(i);
+      if((i+1)!=lawExplainList.size()){
+        nameExplain+=",";
+      }
+    }
     //将name和explain传到生成解释函数，分别得到法律和名称的explain，存入belong表和content表
     Law law=new Law();
     law.setContent(content);
@@ -413,11 +440,13 @@ public class UserController {
     Belong belong=new Belong();
     belong.setName(name);
     belong.setExplain(nameExplain);
+    if(userMapper.findLawsByName(name)==null){
+      userMapper.addBelong(belong);
+    }
     if((userMapper.findLawByContent(content))!=null){
       return "法律已存在";
     }else {
       userMapper.addLaw(law);
-      userMapper.addBelong(belong);
       return "已成功添加";
     }
   }
@@ -504,39 +533,163 @@ public class UserController {
         }
       }
     }
-    /*if(name==null&&explain!=null){
-      if(userMapper.findLaws(explain)==null){
-        return "相关法律不存在";
-      }else {
-        return userMapper.findLaws(explain);
+  }
+
+  @GetMapping("/managersignup")
+  public String managerSignUp(HttpServletRequest request){
+    GetCodeNumber number = new GetCodeNumber();
+    String email = request.getParameter("email");
+    Manager manager = userMapper.findManagerByEmail(email);
+
+    if(manager == null) {
+
+      String registerCode = GetCodeNumber.GetNumber(email);
+
+      String email1Register = userMapper.findRegisterByEmail(email);
+      if(email1Register == null){
+        userMapper.addRegister(email, registerCode);
+      } else {
+        userMapper.updateRegister(email, registerCode);
       }
-    } else if (name != null && explain == null) {
-      if(userMapper.findLawByName(name)==null){
-        return "法律不存在";
-      }else {
-        List<Content> law1=new ArrayList<>();
-        law1=userMapper.findLaws(law.getExplain());
-        return law1;
+      return registerCode;
+    } else {
+      return "邮箱已注册";
+    }
+  }
+
+  @GetMapping("/managerfindpassword")
+  public String managerFindPassword(HttpServletRequest request){
+    GetCodeNumber number = new GetCodeNumber();
+    String email = request.getParameter("email");
+    Manager manager = userMapper.findManagerByEmail(email);
+
+    if(manager != null) {
+
+      String registerCode = number.GetNumber(email);
+
+      String email1Register = userMapper.findRegisterByEmail(email);
+      if(email1Register == null){
+        userMapper.addRegister(email, registerCode);
+      } else {
+        userMapper.updateRegister(email, registerCode);
       }
-    } else if (name != null && explain != null) {
-      if(userMapper.findLawByName(name)==null){
-        return "法律不存在";
+      return registerCode;
+    } else {
+      return "邮箱未注册";
+    }
+  }
+
+  @GetMapping ("/managerregister")
+  public String managerRegister(HttpServletRequest request) {
+    String email = request.getParameter("email");
+    String password = request.getParameter("password");
+    Manager manager=new Manager();
+    manager.setManagerName(email);
+    manager.setManagerPassWord(password);
+    manager.setManagerEmail(email);
+    userMapper.managerSave(manager);
+    return "添加管理员成功";
+  }
+
+  @GetMapping ("/managerlogin")
+  public String managerLogin(HttpServletRequest request){
+    String email=request.getParameter("email");
+    String password=request.getParameter("password");
+    String cookie = request.getParameter("cookie");
+    Manager manager=new Manager();
+    manager.setManagerEmail(email);
+    manager.setManagerPassWord(password);
+    Manager manager1;
+    if(manager.getManagerEmail() == null){
+      return "请输入邮箱号码";
+    }else {
+      manager1=userMapper.findManagerByEmail(manager.getManagerEmail());
+      if(manager1 == null){
+        return "管理员不存在";
       }else {
-        if(userMapper.findLaws(explain)==null){
-          return "相关法律不存在";
-        }else {
-          return userMapper.findLawByBoth(name,explain);
+        if(manager1.getManagerPassWord().equals(password)){
+          if(userMapper.findLogInUser(cookie) == null){
+            userMapper.addLogIn(email, cookie);
+          } else {
+            userMapper.updateLogInUser(email, cookie);
+          }
+          return "登录成功";
+        } else {
+          return "密码错误";
         }
       }
-    }else {
-      return "请输入法律名称或相关法律解释";
-    }*/
+    }
   }
-  @GetMapping("/test")
-  public Object test(HttpServletRequest request){
-    String name=request.getParameter("name");
-    String content=request.getParameter("content");
-    String explain=request.getParameter("explain");
-    return userMapper.findLawByTriple(name,content,explain);
+
+  @GetMapping("/getmanagername")
+  public String findManagerName(HttpServletRequest request) {
+    String cookie = request.getParameter("session-id");
+    if(userMapper.findLogInUser(cookie) == null) {
+      return null;
+    } else {
+      String email = userMapper.findLogInUser(cookie);
+      return userMapper.findLogInManagerName(email);
+    }
+  }
+
+  @GetMapping("/setmanagername")
+  public void setManagerName(HttpServletRequest request) {
+    String cookie = request.getParameter("seesion-id");
+    String newName = request.getParameter("newname");
+    if(userMapper.findLogInUser(cookie) == null) {}
+    else {
+      userMapper.setManagerName(newName, userMapper.findLogInUser(cookie));
+    }
+  }
+
+  int i;
+  @GetMapping("/send")
+  public String sendAdvice(HttpServletRequest request){
+    String cookie=request.getParameter("cookie");
+    String userAdvice=request.getParameter("advice");
+    String email=userMapper.findLogInUser(cookie);
+    List<Integer> managerCount=userMapper.getManager();
+    int turnsNumber;
+    if(i!=managerCount.size()){
+      turnsNumber= managerCount.get(i);
+      i++;
+    }else {
+      i=0;
+      turnsNumber=managerCount.get(i);
+    }
+    Advice advice=new Advice();
+    advice.setUserAdvice(userAdvice);
+    advice.setNumber(turnsNumber);
+    advice.setUserEmail(email);
+    userMapper.sendAdvice(advice);
+    return "提交成功";
+  }
+
+  @GetMapping("/getresponse")
+  public List<Advice> getRespoonse(HttpServletRequest request){
+    String cookie=request.getParameter("cookie");
+    String email=userMapper.findLogInUser(cookie);
+    return userMapper.getManagerResponse(email);
+  }
+
+  @GetMapping("/receive")
+  public List<Advice> receiveAdvice(HttpServletRequest request){
+    String cookie=request.getParameter("cookie");
+    String email=userMapper.findLogInUser(cookie);
+    Manager manager=userMapper.findManagerByEmail(email);
+    return userMapper.managerReceive(manager.getManagerId());
+  }
+
+  @GetMapping("/sendresponse")
+  public String sendResponse(HttpServletRequest request){
+    String adviceID=request.getParameter("adviceID");
+    String response=request.getParameter("response");
+    System.out.println(response);
+    if(response!=null){
+      userMapper.managerSendResponse(response,Integer.parseInt(adviceID));
+      return "上传成功";
+    }else {
+      return "请输入回复";
+    }
   }
 }
