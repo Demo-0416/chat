@@ -25,6 +25,14 @@ public class DialogueSession {
         gptResponsesHistory.addLast(response);
     }
 
+    public void setUserMessagesHistory(ArrayDeque<String> userMessagesHistory) {
+        this.userMessagesHistory = userMessagesHistory;
+    }
+
+    public void setGptResponsesHistory(ArrayDeque<String> gptResponsesHistory) {
+        this.gptResponsesHistory = gptResponsesHistory;
+    }
+
     public String generatePrompt() {
         StringBuilder prompt = new StringBuilder();
 
