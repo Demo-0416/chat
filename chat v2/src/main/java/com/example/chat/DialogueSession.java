@@ -10,6 +10,8 @@ import java.util.ArrayDeque;
 
 public class DialogueSession {
     @Getter
+    private int getCount;
+    @Getter
     private ArrayDeque<String> userMessagesHistory = new ArrayDeque<>();
     @Getter
     private ArrayDeque<String> gptResponsesHistory = new ArrayDeque<>();
@@ -72,4 +74,6 @@ public class DialogueSession {
         return deque;
     }
 
+    public void addGetCount() {
+    }
 }

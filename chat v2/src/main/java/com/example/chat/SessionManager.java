@@ -15,5 +15,4 @@ public class SessionManager {
         userSessions.remove(dialogueId);
     }
 
-    // You can add more methods here if needed, for example, to update sessions, etc.
 }

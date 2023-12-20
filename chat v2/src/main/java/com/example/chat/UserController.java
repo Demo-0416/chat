@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -201,9 +202,15 @@ public class UserController {
   @PostMapping("/savedialogue")
   public void saveDialogue(@RequestBody String dialogue, HttpServletRequest request){
     String cookie = request.getHeader("session-id");
-    int dialogueId = Integer.parseInt(request.getHeader("dialogueid"));
+    System.out.println(cookie);
+    int dialogueId=0;
+    if (!Objects.equals(request.getHeader("dialogueid"), "")){
+      dialogueId=Integer.parseInt(request.getHeader("dialogueid"));
+    }
     LocalDateTime time = LocalDateTime.now();
-    DialogueSession session=sessionManager.getSession(String.valueOf(dialogueId));
+    DialogueSession session=sessionManager.getSession(String.valueOf(cookie));
+    System.out.println(session);
+    System.out.println(session.returnUserMessage());
     String userMessages=session.returnUserMessage();
     String gptResponse=session.returnGptResponse();
 
