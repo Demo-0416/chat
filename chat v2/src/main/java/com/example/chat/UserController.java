@@ -208,7 +208,7 @@ public class UserController {
       dialogueId=Integer.parseInt(request.getHeader("dialogueid"));
     }
     LocalDateTime time = LocalDateTime.now();
-    DialogueSession session=sessionManager.getSession(String.valueOf(cookie));
+    DialogueSession session=sessionManager.getSession(cookie);
     System.out.println(session);
     System.out.println(session.returnUserMessage());
     String userMessages=session.returnUserMessage();

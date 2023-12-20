@@ -37,7 +37,7 @@ public class GptApiController {
             dialogueId=Integer.parseInt(request.getParameter("dialogueid"));
         }
         String userAdditionalRequest=request.getParameter("userAdditionalRequest");
-        DialogueSession session = userSessions.computeIfAbsent(sessionId, k -> new DialogueSession());
+        DialogueSession session = sessionManager.getSession(sessionId);
         System.out.println(session);
         System.out.println("接收到用户信息，开始计算相似度");
         if (session.isEmpty() && Objects.equals(request.getParameter("dialogueid"), "")) {
